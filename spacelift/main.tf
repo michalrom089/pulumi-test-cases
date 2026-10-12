@@ -23,12 +23,12 @@ locals {
   stack_entries = {
     "drift-refresh-set" = {
       project_root = "drift-refresh"
-      description  = "Refresh is off through SPACELIFT_PULUMI_CLI_ARGS_preview. A drift detection run sets the variable to --refresh=true, so the drift preview refreshes."
+      description  = "No env var. One hook sets SPACELIFT_PULUMI_CLI_ARGS_preview to --refresh=true in a drift detection run and to --refresh=false in every other run. The drift preview refreshes, the tracked preview does not."
       after_init = [
         local.seed_state,
-        "if ${local.drift_condition}; then export SPACELIFT_PULUMI_CLI_ARGS_preview=\"--refresh=true\"; fi",
+        "if ${local.drift_condition}; then export SPACELIFT_PULUMI_CLI_ARGS_preview=\"--refresh=true\"; else export SPACELIFT_PULUMI_CLI_ARGS_preview=\"--refresh=false\"; fi",
       ]
-      environment = local.refresh_off
+      environment = { PULUMI_CONFIG_PASSPHRASE = "test" }
     }
     "drift-refresh-append" = {
       project_root = "drift-refresh"
@@ -97,8 +97,9 @@ resource "spacelift_stack" "test_case" {
   runner_image = var.runner_image
   after_init   = each.value.after_init
 
-  space_id   = spacelift_space.test_cases.id
-  autodeploy = var.autodeploy
+  space_id       = spacelift_space.test_cases.id
+  worker_pool_id = var.worker_pool_id
+  autodeploy     = var.autodeploy
 
   labels = ["pulumi", "test-cases", each.value.project_root]
 }

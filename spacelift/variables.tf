@@ -63,3 +63,9 @@ variable "trigger_runs" {
   description = "Start one run per stack after the stack is created. The run fires once, at create."
   default     = true
 }
+
+variable "worker_pool_id" {
+  type        = string
+  description = "Private worker pool the case stacks run on. Drift detection never runs on the public worker pool, so set it to test drift detection."
+  default     = null
+}

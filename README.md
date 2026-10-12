@@ -9,7 +9,7 @@ the Pulumi state lives in the run container through the `file://~` backend.
 
 | Stack                         | What it tests                                                                                                                                                                 |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pulumi-drift-refresh-set`    | Refresh is off through `SPACELIFT_PULUMI_CLI_ARGS_preview=--refresh=false`. An `after_init` hook sets the variable to `--refresh=true` in a drift detection run. The drift preview refreshes. |
+| `pulumi-drift-refresh-set`    | No env var. One `after_init` hook sets `SPACELIFT_PULUMI_CLI_ARGS_preview` to `--refresh=true` in a drift detection run and to `--refresh=false` in every other run. The drift preview refreshes, the tracked preview does not. |
 | `pulumi-drift-refresh-append` | Same, but the hook appends `--refresh=true` to the variable. The drift preview gets three `--refresh` flags and fails with `unable to determine value for --refresh`.          |
 
 How the cases work:
@@ -60,6 +60,9 @@ spacectl api --variables '{
   stackCreate(input: $input, manageState: $manageState) { id name }
 }'
 ```
+
+Set `TF_VAR_worker_pool_id` on the bootstrap stack to a private worker pool.
+Drift detection never runs on the public worker pool.
 
 For a second copy of the set in the same account, set `TF_VAR_name_prefix`
 and `TF_VAR_space_name` on the bootstrap stack.

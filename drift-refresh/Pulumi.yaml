@@ -1,0 +1,13 @@
+# A Pulumi YAML program with one random resource. The resource lives only in
+# the Pulumi state, so the case costs nothing and needs no cloud credentials.
+name: drift-refresh
+runtime: yaml
+description: One random string, so the preview has a resource to refresh.
+resources:
+  suffix:
+    type: random:RandomString
+    properties:
+      length: 8
+      special: false
+outputs:
+  suffix: ${suffix.result}
